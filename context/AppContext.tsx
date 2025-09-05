@@ -2,8 +2,8 @@ import React, { createContext, useState, useCallback, ReactNode, useEffect } fro
 import { Language, Currency, SavedProject, AllInputs, Material, CalculationType } from '../types';
 
 // Import translations directly
-import enTranslations from '../public/locales/en.json';
-import esTranslations from '../public/locales/es.json';
+import enTranslations from '../src/locales/en.json';
+import esTranslations from '../src/locales/es.json';
 
 const translationsData: { [key: string]: { [key: string]: string } } = {
   en: enTranslations,
