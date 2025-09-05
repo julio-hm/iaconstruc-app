@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from '../App';
-import './index.css';
+import '../index.css';
 import './i18n'; // Import i18next configuration
 import { AppContextProvider } from './context/AppContext';
 
