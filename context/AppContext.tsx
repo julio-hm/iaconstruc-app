@@ -1,14 +1,6 @@
 import React, { createContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { Language, Currency, SavedProject, AllInputs, Material, CalculationType } from '../types';
-
-// Import translations directly
-import enTranslations from '../src/locales/en.json';
-import esTranslations from '../src/locales/es.json';
-
-const translationsData: { [key: string]: { [key: string]: string } } = {
-  en: enTranslations,
-  es: esTranslations,
-};
+import { useTranslation } from 'react-i18next';
+import { Language, Currency, SavedProject } from '../types';
 
 type ProjectDataToSave = Omit<SavedProject, 'id' | 'timestamp'>;
 
@@ -23,24 +15,16 @@ interface AppContextType {
   deleteProject: (projectId: string) => void;
 }
 
-export const AppContext = createContext<AppContextType>({
-  language: Language.EN,
-  setLanguage: () => {},
-  currency: Currency.USD,
-  setCurrency: () => {},
-  t: (key: string) => key,
-  savedProjects: [],
-  saveProject: () => {},
-  deleteProject: () => {},
-});
+export const AppContext = createContext<AppContextType>({} as AppContextType);
 
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>(Language.EN);
+  const { t, i18n } = useTranslation();
   const [currency, setCurrency] = useState<Currency>(Currency.USD);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
-  
-  // Get the correct translations based on the current language
-  const translations = translationsData[language] || translationsData[Language.EN];
+
+  const setLanguage = useCallback((lang: Language) => {
+    i18n.changeLanguage(lang);
+  }, [i18n]);
 
   // Load projects from localStorage on initial render
   useEffect(() => {
@@ -63,16 +47,6 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [savedProjects]);
 
-  const t = useCallback((key: string, options?: { [key: string]: string | number }) => {
-    let translation = translations[key] || key;
-    if (options) {
-      Object.keys(options).forEach(optKey => {
-        translation = translation.replace(`{{${optKey}}}`, String(options[optKey]));
-      });
-    }
-    return translation;
-  }, [translations]);
-
   const saveProject = useCallback((projectData: ProjectDataToSave) => {
     const newProject: SavedProject = {
       ...projectData,
@@ -89,7 +63,7 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [t]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, currency, setCurrency, t, savedProjects, saveProject, deleteProject }}>
+    <AppContext.Provider value={{ language: i18n.language as Language, setLanguage, currency, setCurrency, t, savedProjects, saveProject, deleteProject }}>
       {children}
     </AppContext.Provider>
   );
