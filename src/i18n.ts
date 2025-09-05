@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Translations embedded directly as JavaScript objects to prevent encoding issues.
 
@@ -340,20 +339,13 @@ const resources = {
 };
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'es', // Forzar idioma inicial (puedes cambiar a 'en' si prefieres)
+    lng: 'es', // Idioma inicial fijo
     fallbackLng: ['es', 'en'],
     interpolation: {
       escapeValue: false // React already safes from xss
-    },
-    detection: {
-      // Deshabilitar caches para evitar problemas SSR/CSR
-      caches: [],
-      // Puedes agregar order si quieres forzar el orden de detección
-      // order: ['localStorage', 'navigator'],
     }
   });
 
