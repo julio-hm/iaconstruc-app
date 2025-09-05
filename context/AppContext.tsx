@@ -1,6 +1,15 @@
 import React, { createContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { Language, Currency, SavedProject, AllInputs, Material, CalculationType } from '../types';
 
+// Import translations directly
+import enTranslations from '../public/locales/en.json';
+import esTranslations from '../public/locales/es.json';
+
+const translationsData: { [key: string]: { [key: string]: string } } = {
+  en: enTranslations,
+  es: esTranslations,
+};
+
 type ProjectDataToSave = Omit<SavedProject, 'id' | 'timestamp'>;
 
 interface AppContextType {
@@ -28,8 +37,10 @@ export const AppContext = createContext<AppContextType>({
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [currency, setCurrency] = useState<Currency>(Currency.USD);
-  const [translations, setTranslations] = useState<{ [key: string]: string }>({});
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
+  
+  // Get the correct translations based on the current language
+  const translations = translationsData[language] || translationsData[Language.EN];
 
   // Load projects from localStorage on initial render
   useEffect(() => {
@@ -51,32 +62,6 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
       console.error("Failed to save projects to localStorage:", error);
     }
   }, [savedProjects]);
-
-  useEffect(() => {
-    const fetchTranslations = async () => {
-      try {
-        const response = await fetch(`./locales/${language}.json`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTranslations(data);
-      } catch (error) {
-        console.error("Could not load translations:", error);
-        if (language !== Language.EN) {
-           try {
-            const fallbackResponse = await fetch(`./locales/en.json`);
-            const fallbackData = await fallbackResponse.json();
-            setTranslations(fallbackData);
-           } catch (fallbackError) {
-            console.error("Could not load fallback translations:", fallbackError);
-           }
-        }
-      }
-    };
-
-    fetchTranslations();
-  }, [language]);
 
   const t = useCallback((key: string, options?: { [key: string]: string | number }) => {
     let translation = translations[key] || key;
