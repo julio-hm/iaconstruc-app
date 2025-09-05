@@ -1,23 +1,32 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import HttpApi from 'i18next-http-backend';
+
+// Importa los archivos de traducción directamente
+import enTranslation from './locales/en.json';
+import esTranslation from './locales/es.json';
+
+// Define los recursos de traducción
+const resources = {
+  en: {
+    translation: enTranslation
+  },
+  es: {
+    translation: esTranslation
+  }
+};
 
 i18n
-  // load translation using http -> see /public/locales
-  .use(HttpApi)
-  // Detect user language
+  // Detecta el idioma del usuario
   .use(LanguageDetector)
-  // Pass the i18n instance to react-i18next.
+  // Pasa la instancia de i18n a react-i18next.
   .use(initReactI18next)
-  // Init i18next
+  // Inicializa i18next
   .init({
-    fallbackLng: 'en', // use en if detected lng is not available
+    resources, // Carga las traducciones directamente
+    fallbackLng: 'es', // Usa 'es' si el idioma detectado no está disponible
     interpolation: {
-      escapeValue: false // react already safes from xss
-    },
-    backend: {
-      loadPath: '/locales/{{lng}}.json'
+      escapeValue: false // React ya protege contra XSS
     }
   });
 
