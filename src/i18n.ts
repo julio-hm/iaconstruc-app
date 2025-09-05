@@ -344,9 +344,16 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'es',
+    lng: 'es', // Forzar idioma inicial (puedes cambiar a 'en' si prefieres)
+    fallbackLng: ['es', 'en'],
     interpolation: {
       escapeValue: false // React already safes from xss
+    },
+    detection: {
+      // Deshabilitar caches para evitar problemas SSR/CSR
+      caches: [],
+      // Puedes agregar order si quieres forzar el orden de detección
+      // order: ['localStorage', 'navigator'],
     }
   });
 

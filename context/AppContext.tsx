@@ -17,14 +17,38 @@ interface AppContextType {
 
 export const AppContext = createContext<AppContextType>({} as AppContextType);
 
+
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { t, i18n } = useTranslation();
-  const [currency, setCurrency] = useState<Currency>(Currency.USD);
+  // Forzar idioma y moneda por defecto
+  const [language, setLanguageState] = useState<Language>(Language.ES);
+  const [currency, setCurrency] = useState<Currency>(Currency.MXN);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
 
+  // Sincronizar i18n con el estado local
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language, i18n]);
+
   const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
     i18n.changeLanguage(lang);
   }, [i18n]);
+
+  const saveProject = useCallback((projectData: ProjectDataToSave) => {
+    const newProject: SavedProject = {
+      ...projectData,
+      id: new Date().toISOString(),
+      timestamp: Date.now(),
+    };
+    setSavedProjects(prev => [...prev, newProject].sort((a, b) => b.timestamp - a.timestamp));
+  }, []);
+
+  const deleteProject = useCallback((projectId: string) => {
+    if (window.confirm(t('confirm_delete_project'))) {
+      setSavedProjects(prev => prev.filter(p => p.id !== projectId));
+    }
+  }, [t]);
 
   // Load projects from localStorage on initial render
   useEffect(() => {
@@ -47,23 +71,19 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [savedProjects]);
 
-  const saveProject = useCallback((projectData: ProjectDataToSave) => {
-    const newProject: SavedProject = {
-      ...projectData,
-      id: new Date().toISOString(),
-      timestamp: Date.now(),
-    };
-    setSavedProjects(prev => [...prev, newProject].sort((a, b) => b.timestamp - a.timestamp));
-  }, []);
-
-  const deleteProject = useCallback((projectId: string) => {
-    if (window.confirm(t('confirm_delete_project'))) {
-        setSavedProjects(prev => prev.filter(p => p.id !== projectId));
-    }
-  }, [t]);
-
   return (
-    <AppContext.Provider value={{ language: i18n.language as Language, setLanguage, currency, setCurrency, t, savedProjects, saveProject, deleteProject }}>
+    <AppContext.Provider
+      value={{
+        language,
+        setLanguage,
+        currency,
+        setCurrency,
+        t,
+        savedProjects,
+        saveProject,
+        deleteProject,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
