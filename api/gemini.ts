@@ -91,7 +91,7 @@ async function analyzeResults(payload: {
     const prompt = t.ai_prompt_calculation_analysis;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-flash-latest',
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -106,7 +106,7 @@ async function findOnlinePrices(payload: { results: Material[], location: string
     const prompt = t.ai_prompt_price_search;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-flash-latest',
         contents: prompt,
         tools: [{ googleSearch: {} }],
         config: {
@@ -123,7 +123,7 @@ async function findNearbyStores(payload: { results: Material[], location: string
     const prompt = t.ai_prompt_store_search.replace('{{language}}', t.lang_name).replace('{{currency}}', currency).replace('{{materials}}', materialsList).replace('{{location}}', location);
 
     const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-flash-latest',
         contents: prompt,
         tools: [{ googleSearch: {} }],
         config: {
@@ -139,14 +139,14 @@ async function analyzeImage(payload: { imageBase64: string, mimeType: string, pr
     const imagePart = { inlineData: { data: imageBase64, mimeType } };
     const fullPrompt = `As 'ConstruIA', an expert AI in construction and design, analyze the following image. Provide a brief, concise, and visually appealing description or analysis based on the user's request. Respond in ${t.lang_name || 'English'}. User's request: "${prompt}"`;
     const contents = { parts: [imagePart, { text: fullPrompt }] };
-    const response = await ai.models.generateContent({ model: 'gemini-1.5-flash', contents });
+    const response = await ai.models.generateContent({ model: 'gemini-flash-latest', contents });
     return processResponse(response, t);
 }
 
 async function analyzeDocument(payload: { documentText: string, prompt: string, t: any }) {
     const { documentText, prompt, t } = payload;
     const fullPrompt = t.ai_prompt_document_analysis.replace('{{request}}', prompt).replace('{{documentText}}', documentText);
-    const response = await ai.models.generateContent({ model: 'gemini-1.5-flash', contents: fullPrompt });
+    const response = await ai.models.generateContent({ model: 'gemini-flash-latest', contents: fullPrompt });
     return processResponse(response, t);
 }
 
@@ -168,7 +168,7 @@ async function getChatResponse(payload: { history: any[], message: string, t: an
 
     // Use the generateContent method which is known to work in this project
     const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-flash-latest',
         contents: fullConversation,
         systemInstruction: {
             parts: [{ text: systemInstruction }]
